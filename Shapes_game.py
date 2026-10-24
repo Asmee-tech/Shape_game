@@ -63,6 +63,7 @@ def detect_shapes(image):
         detected.append({
         "name":name,
         "contour":contour})
+    print (detected)
     return detected
 
 def mouse_click(event,x,y,flags,param):
@@ -83,8 +84,25 @@ while game:
     if clicked==True:
         # detecting shape
         detected_shapes=detect_shapes(screen)
-        print(detect_shapes)
+        found_shape=None
+        #print(detect_shapes)
         # checking if the detected shape is correct
+        for shape in detected_shapes:
+            contour=shape["contour"]
+            inside=cv2.pointPolygonTest(contour,(mousex,mousey),False)
+            if inside>=0:
+                found_shape=shape["name"]
+                break
+        if found_shape is not None:
+            print(
+                "Clicked:",
+                found_shape,
+                "| Target:",
+                target)
+            if target==found_shape:
+                score+=1
+            else:
+                life-=1
         # moving to next round
         target=random.choice(shapes)
         screen=create_screen()
