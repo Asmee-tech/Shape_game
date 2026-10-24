@@ -8,7 +8,7 @@ height=600
 gametime=30
 score=0
 lives=3
-shapes=["Circle","Square","Triangle","Rectangle"]
+shapes=["Circle","Square","Triangle","Diamond"]
 target=random.choice(shapes)
 start=time.time()
 game=True
@@ -26,14 +26,15 @@ def create_screen():
             cv2.circle(img,(x,y),30,(255,0,255),-1)
         elif shape=="Square":
             cv2.rectangle(img,(x,y),(x+50,y+50),(255,0,255),-1)
-        elif shape=="Rectangle":
-            cv2.rectangle(img,(x,y),(x+80,y+50),(255,0,255),-1)
+        elif shape=="Diamond":
+            points=np.array([(x,y-30),(x+40,y),(x,y+30),(x-40,y)],dtype=np.int32)
+            cv2.fillPoly(img,[points],(255,0,255))
         else:
             points=np.array([(x,y),(x-40,y+30),(x+40,y+30)],dtype=np.int32)
             cv2.fillPoly(img,[points],(255,0,255))
     return img
 
-def detect_shapes(image):   
+def detect_shapes(image):
     gray=cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     _,threshold=cv2.threshold(gray,100,255,cv2.THRESH_BINARY_INV)
     contours,_=cv2.findContours(
@@ -63,13 +64,14 @@ def detect_shapes(image):
         "name":name,
         "contour":contour})
     return detected
+
 def mouse_click(event,x,y,flags,param):
     global mousex,mousey,clicked
     if event==cv2.EVENT_LBUTTONDOWN:
         mousex=x
         mousey=y
         clicked=True
-        
+
 screen=create_screen()
 cv2.namedWindow("Shape Hunter")
 cv2.setMouseCallback("Shape Hunter",mouse_click)
