@@ -8,7 +8,7 @@ height=600
 gametime=30
 score=0
 lives=3
-shapes=["Circle","Square","Triangle","Diamond"]
+shapes=["Circle","Square","Triangle","Pentagon"]
 target=random.choice(shapes)
 start=time.time()
 game=True
@@ -26,8 +26,8 @@ def create_screen():
             cv2.circle(img,(x,y),30,(255,0,255),-1)
         elif shape=="Square":
             cv2.rectangle(img,(x,y),(x+50,y+50),(255,0,255),-1)
-        elif shape=="Diamond":
-            points=np.array([(x,y-30),(x+40,y),(x,y+30),(x-40,y)],dtype=np.int32)
+        elif shape=="Pentagon":
+            points = np.array([[x,y-45],[x + 43, y - 14],[x + 27, y + 36],[x - 27, y + 36],[x - 43, y - 14]])  
             cv2.fillPoly(img,[points],(255,0,255))
         else:
             points=np.array([(x,y),(x-40,y+30),(x+40,y+30)],dtype=np.int32)
@@ -36,7 +36,7 @@ def create_screen():
 
 def detect_shapes(image):
     gray=cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    _,threshold=cv2.threshold(gray,100,255,cv2.THRESH_BINARY_INV)
+    _,threshold=cv2.threshold(gray,150,255,cv2.THRESH_BINARY_INV)
     contours,_=cv2.findContours(
         threshold,
         cv2.RETR_EXTERNAL,
@@ -58,12 +58,14 @@ def detect_shapes(image):
             name="Triangle"
         elif len(corners)==4:
             name="Square"
+        elif len(corners)==5:
+            name="Pentagon"
         else:
             name="Circle"
         detected.append({
         "name":name,
         "contour":contour})
-    print (detected)
+    # print (detected)
     return detected
 
 def mouse_click(event,x,y,flags,param):
@@ -102,7 +104,8 @@ while game:
             if target==found_shape:
                 score+=1
             else:
-                life-=1
+                lives-=1
+                print (lives)
         # moving to next round
         target=random.choice(shapes)
         screen=create_screen()
